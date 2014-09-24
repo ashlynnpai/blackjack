@@ -1,12 +1,18 @@
-#Blackjack OO -- third commit
+#Blackjack OO -- fourth commit
 
 class Card
-  attr_accessor :suit, :value
-
+  attr_accessor :suit, :cvalue
+    
   def initialize
     @suit = suit
-    @value = value
+    @cvalue = cvalue
   end
+  
+  #def extract(cards)
+  #  cards.each do|card|
+  #    return card[0]
+  #  end
+  #end
 end
                   
 class Deck
@@ -16,22 +22,23 @@ class Deck
   CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
   
   def initialize
-  @cards = []
-  @card = Card.new
+    @cards = []
+    @card = Card.new
   end
   
   def shuffle
-  @cards = CARDS.product(SUITS)
-  @cards = @cards.shuffle! 
+    @cards = CARDS.product(SUITS)
+    @cards = @cards.shuffle! 
   end
 end
 
 module Hand
   
   def hand(person, cards)
-    puts"#{person}'s hand is:\n"
+    puts "\n#{person}'s hand is:\n"
+    #puts "#{card.extract(cards)}"
     cards.each do|card|
-      puts "#{card[0]} of #{card[1]}"
+    puts "#{card[0]} of #{card[1]}"
     end
   end
 
@@ -56,13 +63,14 @@ module Hand
   end
 
 class Player
-  attr_accessor :name, :cards
+  attr_accessor :name, :cards, :card
   
   include Hand
 
   def initialize(n)
     @name = n
     @cards = [] 
+    @card = Card.new 
   end    
 end
 
@@ -92,7 +100,7 @@ class Game
     @p_hand = []
     @d_hand = []
   end
-  
+
   def new_game
     puts "Play again? (Y/N)"
     y=gets.chomp.upcase
@@ -107,11 +115,13 @@ class Game
         puts "It's a tie with two blackjacks!"
         new_game
       elsif player_total == 21 
-        puts "#{player.name} wins with blackjack!"
+        puts "\n#{player.name} wins with blackjack!"
+        dealer.hand("Dealer", @d_hand)
+        puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
         new_game
       elsif dealer_total == 21
         dealer.hand("Dealer", @d_hand)
-        puts "Dealer wins with blackjack!"
+        puts "\nDealer wins with blackjack!"
         new_game
       end
     nil
@@ -132,7 +142,7 @@ class Game
   
   def dealer_deal
     @d_hand = @deck.pop(2)
-    puts "\n\nDealer's cards\n"
+    puts "\n\nDealer's hand is:\n"
     dealer.first_hand(@d_hand)
   end
    
@@ -158,21 +168,21 @@ class Game
   end
   
   def dealer_turn
-    loop do
     total=dealer.total(@d_hand)
-     puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
+    dealer.hand("Dealer", @d_hand)
+    puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
+    loop do
       if total < 17
         puts "Dealer hits.\n\n"
         @d_hand << @deck.pop
         dealer.hand("Dealer", @d_hand)
         total=dealer.total(@d_hand)
+        puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
           if total > 21
-            puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
             puts "Dealer went bust."
             new_game
           end
       else
-        dealer.hand("Dealer", @d_hand)
         puts "\nDealer stands with #{total}.\n"
         break
       end
