@@ -1,31 +1,41 @@
-#Blackjack OO -- second commit -- work in progress
+#Blackjack OO -- third commit
 
+class Card
+  attr_accessor :suit, :value
+
+  def initialize
+    @suit = suit
+    @value = value
+  end
+end
+                  
 class Deck
-  attr_accessor :deck
+  attr_accessor :cards
   
   SUITS = ['H', 'D', 'S', 'C']
   CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
   
   def initialize
-  @deck = []
+  @cards = []
+  @card = Card.new
   end
   
   def shuffle
-  @deck1 = CARDS.product(SUITS)
-  @deck1 = @deck1.shuffle! 
+  @cards = CARDS.product(SUITS)
+  @cards = @cards.shuffle! 
   end
-  
 end
 
 module Hand
-
-def hand(person, cards)
+  
+  def hand(person, cards)
+    puts"#{person}'s hand is:\n"
     cards.each do|card|
-      puts "#{card}"
-     #puts "=> Total: #{total}"
+      puts "#{card[0]} of #{card[1]}"
     end
-    
-def total(cards)
+  end
+
+  def total(cards)
     arr = cards.map{|e| e[0] }
     total = 0
       arr.each do |value|
@@ -39,34 +49,37 @@ def total(cards)
       end
     #correct for Aces
     arr.select{|e| e == "A"}.count.times do
-    total -= 10 if total > 21
-    end
+      total -= 10 if total > 21
+      end
     total
+    end
   end
-end
-end
 
 class Player
   attr_accessor :name, :cards
   
-   include Hand
+  include Hand
 
   def initialize(n)
     @name = n
-    @cards = []
-  end
-    
+    @cards = [] 
+  end    
 end
 
 class Dealer
   attr_accessor :name, :cards
   
-    include Hand
+  include Hand
 
   def initialize
     @name = "Dealer"
     @cards = []
   end
+  
+  def first_hand(cards)
+    puts "First card is hidden."
+    puts "Second card is #{cards[1][0]} of #{cards[1][1]}\n\n"
+    end
 end
 
 class Game
@@ -74,7 +87,7 @@ class Game
   
   def initialize
     @deck = Deck.new
-    @player = Player.new("Player1")
+    @player = Player.new("Player 1")
     @dealer = Dealer.new
     @p_hand = []
     @d_hand = []
@@ -86,93 +99,92 @@ class Game
     y == "Y" ? Game.new.play : exit
   end
   
-  def report_total
-    player_total = player.total(@p_hand)
-    puts "Player's total is #{player_total}."
-    dealer_total = dealer.total(@d_hand)
-    puts "Dealer's total is #{dealer_total}."
-  end
-  
-
-    def blackjack
+  def blackjack
     player_total = player.total(@p_hand)
     dealer_total = dealer.total(@d_hand)
-    report_total  
-    if (player_total == 21) && (dealer_total == 21) 
-      puts "Tie!"
-      new_game
-    elif player_total == 21 
-      puts "Player wins!"
-      new_game
-    elif dealer_total == 21 
-      puts "Dealer wins!"
-      new_game
-    end
+    puts "\n#{player.name}'s total is #{player.total(@p_hand)}."
+      if (player_total == 21) && (dealer_total == 21) 
+        puts "It's a tie with two blackjacks!"
+        new_game
+      elsif player_total == 21 
+        puts "#{player.name} wins with blackjack!"
+        new_game
+      elsif dealer_total == 21
+        dealer.hand("Dealer", @d_hand)
+        puts "Dealer wins with blackjack!"
+        new_game
+      end
     nil
   end
   
+  def start_game
+    puts "Welcome to a new round of Blackjack!\n"
+    puts "What is Player's name?"
+    player.name = gets.chomp
+    puts "\n\nWelcome #{player.name}!\n\n"
+  end
+
   def player_deal
     @deck=@deck.shuffle
     @p_hand = @deck.pop(2)
-    puts "Player's cards"
-    player.hand("Player 1", @p_hand)
+    player.hand(player.name, @p_hand)
   end
   
   def dealer_deal
     @d_hand = @deck.pop(2)
-    puts "Dealer's cards"
-    dealer.hand("Dealer", @d_hand)
+    puts "\n\nDealer's cards\n"
+    dealer.first_hand(@d_hand)
   end
    
   def player_turn
     loop do
       puts "Hit or stand? (H/S)"
       x=gets.chomp.upcase
-      player_total = player.total(@p_hand)
       if x == "H"
-        puts "Player hits."
+        puts "#{player.name} hits.\n\n"
         @p_hand << @deck.pop
-        player.hand("Player 1", @p_hand)
-        report_total
-          if player_total > 21
-            puts "Player went bust."
+        player.hand(player.name, @p_hand)
+        total=player.total(@p_hand)
+        puts "\n#{player.name}'s total is #{player.total(@p_hand)}.\n"
+          if total > 21
+            puts "#{player.name} went bust."
             new_game
           end
       else 
-          puts "Player stands with #{player_total}."
-          break
+        puts "\n#{player.name} stands with #{player.total(@p_hand)}.\n\n"
+        break
       end 
     end
   end
   
   def dealer_turn
     loop do
-    dealer_total = dealer.total(@d_hand)
-    if dealer_total < 17
-      puts "Dealer hits."
-      @d_hand << @deck.pop
-      dealer.hand("Dealer", @d_hand)
-      report_total
-        if dealer_total > 21
-          puts "Dealer went bust."
-          new_game
-        end
-    else
-      puts "Dealer stands with #{dealer_total}."
-      break
-    end
+    total=dealer.total(@d_hand)
+     puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
+      if total < 17
+        puts "Dealer hits.\n\n"
+        @d_hand << @deck.pop
+        dealer.hand("Dealer", @d_hand)
+        total=dealer.total(@d_hand)
+          if total > 21
+            puts "\nDealer's total is #{dealer.total(@d_hand)}.\n"
+            puts "Dealer went bust."
+            new_game
+          end
+      else
+        dealer.hand("Dealer", @d_hand)
+        puts "\nDealer stands with #{total}.\n"
+        break
+      end
     end
   end
     
   def winner
-    player_total = player.total(@p_hand)
-    dealer_total = dealer.total(@d_hand)
-    report_total
-    x= player_total<=>dealer_total
+    x= player.total(@p_hand)<=>dealer.total(@d_hand)
       if x == 0 
         puts "It's a tie."
       elsif x == 1 
-        puts "Player wins."
+        puts "#{player.name} wins."
       else 
         puts "Dealer wins"
       end
@@ -180,6 +192,7 @@ class Game
   end
     
   def play
+    puts "Welcome to a new round of Blackjack!\n\n"
     player_deal
     dealer_deal
     blackjack
@@ -187,7 +200,17 @@ class Game
     dealer_turn
     winner  
   end 
+
+  def first_play
+    start_game
+    player_deal
+    dealer_deal
+    blackjack
+    player_turn
+    dealer_turn
+    winner  
+  end
 end
 
-Game.new.play 
+Game.new.first_play 
   
