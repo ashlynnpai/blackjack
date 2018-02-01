@@ -132,15 +132,7 @@ class Game
       puts "Hit or stand? (H/S)"
       decide = gets.chomp.upcase
       if decide == "H"
-        puts "#{player.name} hits.\n"
-        player.cards << @deck.pop
-        player.hand(player.name, player.cards)
-        tracker[player.name] = player.total(player.cards)
-        puts "\n#{player.name}'s total is #{tracker[player.name]}.\n"
-          if tracker[player.name] > 21
-            puts "#{player.name} went bust."
-            new_game
-          end
+        hit_cycle(player)
       else
         puts "\n#{player.name} stands with #{tracker[player.name]}.\n"
         break
@@ -153,20 +145,28 @@ class Game
     tracker[dealer.name] = dealer.total(dealer.cards)
     puts "\n#{dealer.name}'s total is #{tracker[dealer.name]}.\n"
     loop do
-      if tracker[player.name] < 17
-        puts "#{dealer.name} hits.\n"
-        dealer.cards << @deck.pop
-        dealer.hand(dealer.name, dealer.cards)
-        tracker[dealer.name] = dealer.total(dealer.cards)
-        puts "\n#{dealer.name}'s' total is #{tracker[dealer.name]}.\n"
-          if tracker[player.name] > 21
-            puts "#{dealer.name} went bust."
-            new_game
-          end
+      if tracker[dealer.name] < 17
+        hit_cycle(dealer)
       else
         puts "\n#{dealer.name} stands with #{tracker[dealer.name]}.\n"
         break
       end
+    end
+  end
+
+  def hit_cycle(participant)
+    puts "#{participant.name} hits.\n"
+    participant.cards << @deck.pop
+    participant.hand(participant.name, participant.cards)
+    tracker[participant.name] = participant.total(participant.cards)
+    puts "\n#{participant.name}'s' total is #{tracker[participant.name]}.\n"
+    check_for_bust(participant)
+  end
+
+  def check_for_bust(participant)
+    if tracker[participant.name] > 21
+      puts "#{participant.name} went bust."
+      new_game
     end
   end
 
