@@ -83,7 +83,7 @@ class Dealer < Participant
 
   def first_hand(cards)
     puts "First card is hidden."
-    puts "Second card is #{cards[1]}\n\n"
+    puts "Second card is #{cards[1]}\n"
   end
 end
 
@@ -104,7 +104,7 @@ class Game
         puts "It's a tie with two blackjacks!"
         new_game
       elsif player_total == 21
-        puts "\n#{player.name} wins w    @player = Player.new(player.name)ith blackjack!"
+        puts "\n#{player.name} wins with blackjack!"
         dealer.hand(dealer.name, dealer.cards)
         puts "\nDealer's total is #{dealer.total(dealer.cards)}.\n"
         new_game
@@ -117,12 +117,12 @@ class Game
   end
 
   def start_game
-    puts "Welcome to a new round of Blackjack!\n"
+    puts "Welcome to Blackjack!\n"
     puts "What is Player's name?"
     @player = Player.new
     @player.name = gets.chomp
     @dealer = Dealer.new("Dealer")
-    puts "\n\nWelcome #{player.name}!\n\n"
+    puts "\nWelcome #{player.name}!\n"
   end
 
   def initial_deal
@@ -130,7 +130,7 @@ class Game
     player.cards = @deck.pop(2)
     player.hand(player.name, player.cards)
     dealer.cards = @deck.pop(2)
-    puts "\n\n#{dealer.name}'s hand is:\n"
+    puts "\n#{dealer.name}'s hand is:\n"
     dealer.first_hand(dealer.cards)
   end
 
@@ -139,7 +139,7 @@ class Game
       puts "Hit or stand? (H/S)"
       decide = gets.chomp.upcase
       if decide == "H"
-        puts "#{player.name} hits.\n\n"
+        puts "#{player.name} hits.\n"
         player.cards << @deck.pop
         player.hand(player.name, player.cards)
         total=player.total(player.cards)
@@ -149,7 +149,7 @@ class Game
             new_game
           end
       else
-        puts "\n#{player.name} stands with #{player.total(player.cards)}.\n\n"
+        puts "\n#{player.name} stands with #{player.total(player.cards)}.\n"
         break
       end
     end
@@ -161,7 +161,7 @@ class Game
     puts "\nDealer's total is #{dealer.total(dealer.cards)}.\n"
     loop do
       if total < 17
-        puts "Dealer hits.\n\n"
+        puts "Dealer hits.\n"
         dealer.cards << @deck.pop
         dealer.hand(dealer.name, dealer.cards)
         total=dealer.total(dealer.cards)
@@ -197,21 +197,16 @@ class Game
     winner
   end
 
-  def play_again
-    puts "Welcome to a new round of Blackjack!\n\n"
-    restart_game
-
+  def restart_game
+    puts "Welcome to a new round of Blackjack!\n"
+    @deck = Deck.new
+    player.cards = []
+    dealer.cards = []
+    play
   end
 
   def first_play
     start_game
-    play
-  end
-
-  def restart_game
-    @deck = Deck.new
-    player.cards = []
-    dealer.cards = []
     play
   end
 end
