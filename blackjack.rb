@@ -168,13 +168,13 @@ class Game
 
   def player_turn
     loop do
-      puts "Hit or stand? (H/S)"
+      puts "\nHit or stand? (H/S)"
       decide = gets.chomp.upcase
       if decide == "H"
         get_card(player)
         break if tracker[player.name] == 21
         break if check_for_bust(player)
-      else
+      elsif decide == "S"
         puts "\n#{player.name} stands with #{tracker[player.name]}.\n"
         break
       end
