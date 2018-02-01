@@ -23,7 +23,7 @@ class Deck
     @cards = []
   end
 
-  def shuffle
+  def create_deck
     @cards = []
     CARDS.each do |card|
       SUITS.each do |suit|
@@ -88,13 +88,7 @@ class Dealer < Participant
 end
 
 class Game
-  attr_accessor :deck, :player, :dealer, :player_hand, :dealer_hand
-
-  def initialize
-    @deck = Deck.new
-    @player_hand = []
-    @dealer_hand = []
-  end
+  attr_accessor :deck, :player, :dealer
 
   def new_game
     puts "Play again? (Y/N)"
@@ -103,19 +97,19 @@ class Game
   end
 
   def blackjack
-    player_total = player.total(@player_hand)
-    dealer_total = dealer.total(@dealer_hand)
-    puts "\n#{player.name}'s total is #{player.total(@player_hand)}."
+    player_total = player.total(player.cards)
+    dealer_total = dealer.total(dealer.cards)
+    puts "\n#{player.name}'s total is #{player.total(player.cards)}."
       if (player_total == 21) && (dealer_total == 21)
         puts "It's a tie with two blackjacks!"
         new_game
       elsif player_total == 21
         puts "\n#{player.name} wins w    @player = Player.new(player.name)ith blackjack!"
-        dealer.hand(dealer.name, @dealer_hand)
-        puts "\nDealer's total is #{dealer.total(@dealer_hand)}.\n"
+        dealer.hand(dealer.name, dealer.cards)
+        puts "\nDealer's total is #{dealer.total(dealer.cards)}.\n"
         new_game
       elsif dealer_total == 21
-        dealer.hand(dealer.name, @dealer_hand)
+        dealer.hand(dealer.name, dealer.cards)
         puts "\nDealer wins with blackjack!"
         new_game
       end
@@ -131,16 +125,13 @@ class Game
     puts "\n\nWelcome #{player.name}!\n\n"
   end
 
-  def player_deal
-    @deck=@deck.shuffle
-    @player_hand = @deck.pop(2)
-    player.hand(player.name, @player_hand)
-  end
-
-  def dealer_deal
-    @dealer_hand = @deck.pop(2)
+  def initial_deal
+    @deck = Deck.new.create_deck
+    player.cards = @deck.pop(2)
+    player.hand(player.name, player.cards)
+    dealer.cards = @deck.pop(2)
     puts "\n\n#{dealer.name}'s hand is:\n"
-    dealer.first_hand(@dealer_hand)
+    dealer.first_hand(dealer.cards)
   end
 
   def player_turn
@@ -149,32 +140,32 @@ class Game
       decide = gets.chomp.upcase
       if decide == "H"
         puts "#{player.name} hits.\n\n"
-        @player_hand << @deck.pop
-        player.hand(player.name, @player_hand)
-        total=player.total(@player_hand)
-        puts "\n#{player.name}'s total is #{player.total(@player_hand)}.\n"
+        player.cards << @deck.pop
+        player.hand(player.name, player.cards)
+        total=player.total(player.cards)
+        puts "\n#{player.name}'s total is #{player.total(player.cards)}.\n"
           if total > 21
             puts "#{player.name} went bust."
             new_game
           end
       else
-        puts "\n#{player.name} stands with #{player.total(@player_hand)}.\n\n"
+        puts "\n#{player.name} stands with #{player.total(player.cards)}.\n\n"
         break
       end
     end
   end
 
   def dealer_turn
-    total = dealer.total(@dealer_hand)
-    dealer.hand("Dealer", @dealer_hand)
-    puts "\nDealer's total is #{dealer.total(@dealer_hand)}.\n"
+    total = dealer.total(dealer.cards)
+    dealer.hand("Dealer", dealer.cards)
+    puts "\nDealer's total is #{dealer.total(dealer.cards)}.\n"
     loop do
       if total < 17
         puts "Dealer hits.\n\n"
-        @dealer_hand << @deck.pop
-        dealer.hand(dealer.name, @dealer_hand)
-        total=dealer.total(@dealer_hand)
-        puts "\n#{dealer.name}'s' total is #{dealer.total(@dealer_hand)}.\n"
+        dealer.cards << @deck.pop
+        dealer.hand(dealer.name, dealer.cards)
+        total=dealer.total(dealer.cards)
+        puts "\n#{dealer.name}'s' total is #{dealer.total(dealer.cards)}.\n"
           if total > 21
             puts "#{dealer.name} went bust."
             new_game
@@ -187,7 +178,7 @@ class Game
   end
 
   def winner
-    win = player.total(@player_hand)<=>dealer.total(@dealer_hand)
+    win = player.total(player.cards)<=>dealer.total(dealer.cards)
       if win == 0
         puts "It's a tie."
       elsif win == 1
@@ -199,8 +190,7 @@ class Game
   end
 
   def play
-    player_deal
-    dealer_deal
+    initial_deal
     blackjack
     player_turn
     dealer_turn
@@ -220,8 +210,8 @@ class Game
 
   def restart_game
     @deck = Deck.new
-    @player_hand = []
-    @dealer_hand = []
+    player.cards = []
+    dealer.cards = []
     play
   end
 end
