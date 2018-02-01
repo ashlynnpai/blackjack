@@ -1,28 +1,28 @@
  #Blackjack OO -- fifth commit
- 
+
 class Card
   attr_accessor :suit, :value
- 
+
   def initialize(suit, value)
     @suit = suit
     @value = value
   end
- 
+
   def to_s
     "#{value} of #{suit}"
   end
 end
- 
+
 class Deck
   attr_accessor :cards
- 
+
   SUITS = ['H', 'D', 'S', 'C']
   CARDS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
- 
+
   def initialize
     @cards = []
   end
- 
+
   def shuffle
     @cards = []
     CARDS.each do |card|
@@ -30,20 +30,20 @@ class Deck
         @cards << Card.new(suit, card)
       end
     end
- 
+
     @cards = @cards.shuffle!
   end
 end
- 
+
 module Hand
- 
+
   def hand(person, cards)
     puts "\n#{person}'s hand is:\n"
     cards.each do|card|
       puts card
     end
   end
- 
+
   def total(cards)
     add_values = cards.map{|card| card.value }
     total = 0
@@ -63,37 +63,37 @@ module Hand
     total
     end
   end
- 
+
 class Player
   attr_accessor :name, :cards, :card
- 
+
   include Hand
- 
+
   def initialize(n)
     @name = n
     @cards = []
   end
 end
- 
+
 class Dealer
   attr_accessor :name, :cards
- 
+
   include Hand
- 
+
   def initialize
     @name = "Dealer"
     @cards = []
   end
- 
+
   def first_hand(cards)
     puts "First card is hidden."
     puts "Second card is #{cards[1]}\n\n"
     end
 end
- 
+
 class Game
   attr_accessor :deck, :player, :dealer, :p_hand, :d_hand
- 
+
   def initialize
     @deck = Deck.new
     @player = Player.new("Player 1")
@@ -101,13 +101,13 @@ class Game
     @p_hand = []
     @d_hand = []
   end
- 
+
   def new_game
     puts "Play again? (Y/N)"
     y=gets.chomp.upcase
     y == "Y" ? Game.new.play : exit
   end
- 
+
   def blackjack
     player_total = player.total(@p_hand)
     dealer_total = dealer.total(@d_hand)
@@ -127,26 +127,26 @@ class Game
       end
     nil
   end
- 
+
   def start_game
     puts "Welcome to a new round of Blackjack!\n"
     puts "What is Player's name?"
     player.name = gets.chomp
     puts "\n\nWelcome #{player.name}!\n\n"
   end
- 
+
   def player_deal
     @deck=@deck.shuffle
     @p_hand = @deck.pop(2)
     player.hand(player.name, @p_hand)
   end
- 
+
   def dealer_deal
     @d_hand = @deck.pop(2)
     puts "\n\nDealer's hand is:\n"
     dealer.first_hand(@d_hand)
   end
- 
+
   def player_turn
     loop do
       puts "Hit or stand? (H/S)"
@@ -167,7 +167,7 @@ class Game
       end
     end
   end
- 
+
   def dealer_turn
     total = dealer.total(@d_hand)
     dealer.hand("Dealer", @d_hand)
@@ -189,7 +189,7 @@ class Game
       end
     end
   end
- 
+
   def winner
     win = player.total(@p_hand)<=>dealer.total(@d_hand)
       if win == 0
@@ -201,9 +201,8 @@ class Game
       end
     new_game
   end
- 
+
   def play
-    puts "Welcome to a new round of Blackjack!\n\n"
     player_deal
     dealer_deal
     blackjack
@@ -211,17 +210,16 @@ class Game
     dealer_turn
     winner
   end
- 
+
+  def play_again
+    puts "Welcome to a new round of Blackjack!\n\n"
+    play
+  end
+
   def first_play
     start_game
-    player_deal
-    dealer_deal
-    blackjack
-    player_turn
-    dealer_turn
-    winner
+    play
   end
 end
- 
-Game.new.first_play
 
+Game.new.first_play
