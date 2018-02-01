@@ -86,11 +86,16 @@ class Dealer < Participant
   end
 end
 
+class Npc < Participant
+
+end
+
 class Game
-  attr_accessor :deck, :player, :dealer, :tracker
+  attr_accessor :deck, :player, :dealer, :npcs, :tracker
 
   def initialize
     @tracker = {}
+    @npcs = []
   end
 
   def new_game
@@ -117,7 +122,22 @@ class Game
     @player = Player.new
     @player.name = gets.chomp
     @dealer = Dealer.new("Dealer")
-    puts "\nWelcome #{player.name}!\n"
+    puts "\nWelcome #{player.name}!"
+    number_npcs = select_number_npcs
+  end
+
+  def select_number_npcs
+    while true do
+      puts "\nHow many computer players do you want in the game? Select 0-4"
+      number_npcs = gets.chomp
+      begin
+        number_npcs = Integer(number_npcs)
+        break if number_npcs >= 0 && number_npcs <= 4
+      rescue
+        puts "Not a valid number"
+      end
+    end
+    return number_npcs
   end
 
   def initial_deal
@@ -142,6 +162,10 @@ class Game
         break
       end
     end
+  end
+
+  def npc_turn
+
   end
 
   def dealer_turn
