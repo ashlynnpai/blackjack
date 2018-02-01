@@ -1,5 +1,3 @@
- #Blackjack OO -- fifth commit
-
 class Card
   attr_accessor :suit, :value
 
@@ -88,7 +86,11 @@ class Dealer < Participant
 end
 
 class Game
-  attr_accessor :deck, :player, :dealer
+  attr_accessor :deck, :player, :dealer, :score_tracker
+
+  def initialize
+    @score_tracker = {}
+  end
 
   def new_game
     puts "Play again? (Y/N)"
@@ -97,9 +99,10 @@ class Game
   end
 
   def blackjack
-    player_total = player.total(player.cards)
-    dealer_total = dealer.total(dealer.cards)
-    puts "\n#{player.name}'s total is #{player.total(player.cards)}."
+    @score[:player] = player.total(player.cards)
+    @score[:dealer] = dealer.total(dealer.cards)
+    puts "\n#{player.name}'s total is #{@score[:player]}."
+    #iterate over hash and everyone who has 21 is a winner
       if (player_total == 21) && (dealer_total == 21)
         puts "It's a tie with two blackjacks!"
         new_game
