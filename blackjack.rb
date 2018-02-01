@@ -1,5 +1,3 @@
- #Blackjack OO -- fifth commit
-
 class Card
   attr_accessor :suit, :value
 
@@ -88,7 +86,11 @@ class Dealer < Participant
 end
 
 class Game
-  attr_accessor :deck, :player, :dealer
+  attr_accessor :deck, :player, :dealer, :tracker
+
+  def initialize
+    @tracker = {}
+  end
 
   def new_game
     puts "Play again? (Y/N)"
@@ -97,23 +99,14 @@ class Game
   end
 
   def blackjack
-    player_total = player.total(player.cards)
-    dealer_total = dealer.total(dealer.cards)
-    puts "\n#{player.name}'s total is #{player.total(player.cards)}."
-      if (player_total == 21) && (dealer_total == 21)
-        puts "It's a tie with two blackjacks!"
-        new_game
-      elsif player_total == 21
-        puts "\n#{player.name} wins with blackjack!"
-        dealer.hand(dealer.name, dealer.cards)
-        puts "\nDealer's total is #{dealer.total(dealer.cards)}.\n"
-        new_game
-      elsif dealer_total == 21
-        dealer.hand(dealer.name, dealer.cards)
-        puts "\nDealer wins with blackjack!"
-        new_game
-      end
-    nil
+    winners = []
+    tracker[player.name] = player.total(player.cards)
+    tracker[dealer.name] = dealer.total(dealer.cards)
+    tracker.each {|k,v| winners << k if v == 21}
+    if winners.length > 0
+      puts "\nThe blackjack winners are: \n"
+      winners.each {|winner| puts winner}
+    end
   end
 
   def start_game
@@ -139,41 +132,41 @@ class Game
       puts "Hit or stand? (H/S)"
       decide = gets.chomp.upcase
       if decide == "H"
-        puts "#{player.name} hits.\n"
-        player.cards << @deck.pop
-        player.hand(player.name, player.cards)
-        total=player.total(player.cards)
-        puts "\n#{player.name}'s total is #{player.total(player.cards)}.\n"
-          if total > 21
-            puts "#{player.name} went bust."
-            new_game
-          end
+        hit_cycle(player)
       else
-        puts "\n#{player.name} stands with #{player.total(player.cards)}.\n"
+        puts "\n#{player.name} stands with #{tracker[player.name]}.\n"
         break
       end
     end
   end
 
   def dealer_turn
-    total = dealer.total(dealer.cards)
     dealer.hand("Dealer", dealer.cards)
-    puts "\nDealer's total is #{dealer.total(dealer.cards)}.\n"
+    tracker[dealer.name] = dealer.total(dealer.cards)
+    puts "\n#{dealer.name}'s total is #{tracker[dealer.name]}.\n"
     loop do
-      if total < 17
-        puts "Dealer hits.\n"
-        dealer.cards << @deck.pop
-        dealer.hand(dealer.name, dealer.cards)
-        total=dealer.total(dealer.cards)
-        puts "\n#{dealer.name}'s' total is #{dealer.total(dealer.cards)}.\n"
-          if total > 21
-            puts "#{dealer.name} went bust."
-            new_game
-          end
+      if tracker[dealer.name] < 17
+        hit_cycle(dealer)
       else
-        puts "\n#{dealer.name} stands with #{total}.\n"
+        puts "\n#{dealer.name} stands with #{tracker[dealer.name]}.\n"
         break
       end
+    end
+  end
+
+  def hit_cycle(participant)
+    puts "#{participant.name} hits.\n"
+    participant.cards << @deck.pop
+    participant.hand(participant.name, participant.cards)
+    tracker[participant.name] = participant.total(participant.cards)
+    puts "\n#{participant.name}'s' total is #{tracker[participant.name]}.\n"
+    check_for_bust(participant)
+  end
+
+  def check_for_bust(participant)
+    if tracker[participant.name] > 21
+      puts "#{participant.name} went bust."
+      new_game
     end
   end
 
