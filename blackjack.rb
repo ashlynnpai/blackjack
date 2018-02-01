@@ -81,6 +81,7 @@ end
 class Dealer < Participant
 
   def first_hand(cards)
+    puts "\n#{name} hand is:\n"
     puts "First card is hidden."
     puts "Second card is #{cards[1]}\n"
   end
@@ -124,6 +125,16 @@ class Game
     @dealer = Dealer.new("Dealer")
     puts "\nWelcome #{player.name}!"
     number_npcs = select_number_npcs
+    create_npcs(number_npcs)
+  end
+
+  def create_npcs(number)
+    names = ["Elvis", "Wynning", "Caesar", "Lucky"]
+    index = 0
+    number.times do
+      npcs << Npc.new(names[index])
+      index += 1
+    end
   end
 
   def select_number_npcs
@@ -142,11 +153,17 @@ class Game
 
   def initial_deal
     @deck = Deck.new.create_deck
-    player.cards = @deck.pop(2)
+    deal_each(player)
     player.hand(player.name, player.cards)
-    dealer.cards = @deck.pop(2)
-    puts "\n#{dealer.name}'s hand is:\n"
+    deal_each(dealer)
     dealer.first_hand(dealer.cards)
+    if npcs.length > 0
+      npcs.each { |npc| deal_each(npc) }
+    end
+  end
+
+  def deal_each(participant)
+    participant.cards = @deck.pop(2)
   end
 
   def player_turn
