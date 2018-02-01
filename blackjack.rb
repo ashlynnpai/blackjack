@@ -23,12 +23,13 @@ class Deck
 
   def create_deck
     @cards = []
-    CARDS.each do |card|
-      SUITS.each do |suit|
-        @cards << Card.new(suit, card)
+    2.times do
+      CARDS.each do |card|
+        SUITS.each do |suit|
+          @cards << Card.new(suit, card)
+        end
       end
     end
-
     @cards = @cards.shuffle!
   end
 end
