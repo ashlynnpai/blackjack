@@ -135,6 +135,7 @@ class Game
       decide = gets.chomp.upcase
       if decide == "H"
         get_card(player)
+        break if tracker[player.name] == 21
         break if check_for_bust(player)
       else
         puts "\n#{player.name} stands with #{tracker[player.name]}.\n"
