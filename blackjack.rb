@@ -104,8 +104,9 @@ class Game
     tracker[dealer.name] = dealer.total(dealer.cards)
     tracker.each {|k,v| winners << k if v == 21}
     if winners.length > 0
-      puts "\nThe blackjack winners are: \n"
+      puts "\nWinning with blackjack are: \n"
       winners.each {|winner| puts winner}
+      new_game
     end
   end
 
@@ -132,7 +133,8 @@ class Game
       puts "Hit or stand? (H/S)"
       decide = gets.chomp.upcase
       if decide == "H"
-        hit_cycle(player)
+        get_card(player)
+        break if check_for_bust(player)
       else
         puts "\n#{player.name} stands with #{tracker[player.name]}.\n"
         break
@@ -146,7 +148,8 @@ class Game
     puts "\n#{dealer.name}'s total is #{tracker[dealer.name]}.\n"
     loop do
       if tracker[dealer.name] < 17
-        hit_cycle(dealer)
+        get_card(dealer)
+        break if check_for_bust(dealer)
       else
         puts "\n#{dealer.name} stands with #{tracker[dealer.name]}.\n"
         break
@@ -154,31 +157,37 @@ class Game
     end
   end
 
-  def hit_cycle(participant)
+  def get_card(participant)
     puts "#{participant.name} hits.\n"
     participant.cards << @deck.pop
     participant.hand(participant.name, participant.cards)
     tracker[participant.name] = participant.total(participant.cards)
     puts "\n#{participant.name}'s' total is #{tracker[participant.name]}.\n"
-    check_for_bust(participant)
   end
 
   def check_for_bust(participant)
     if tracker[participant.name] > 21
       puts "#{participant.name} went bust."
-      new_game
+      true
     end
   end
 
   def winner
-    win = player.total(player.cards)<=>dealer.total(dealer.cards)
-      if win == 0
-        puts "It's a tie."
-      elsif win == 1
-        puts "#{player.name} wins."
-      else
-        puts "#{dealer.name} wins"
+    winners = []
+    tracker.each do |k,v|
+      if winners.length > 0
+        if v > tracker[winners[0]] && v < 22
+          winners = []
+          winners << k
+        elsif v == tracker[winners[0]]
+          winners << k
+        end
+      elsif v < 22
+        winners << k
       end
+    end
+    puts "\nThe winners are: \n"
+    winners.each {|winner| puts winner}
     new_game
   end
 
