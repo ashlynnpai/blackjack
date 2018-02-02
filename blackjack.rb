@@ -136,8 +136,10 @@ class Game
       npcs << Npc.new(names[index])
       index += 1
     end
-    puts "\nIntroducing the other players:"
-    npcs.each {|npc| puts "#{npc.name}"}
+    if number > 0
+      puts "\nIntroducing the other players:"
+      npcs.each {|npc| puts "#{npc.name}"}
+    end
   end
 
   def select_number_npcs
@@ -243,6 +245,7 @@ class Game
     end
     puts "\nThe winners are: \n"
     winners.each {|winner| puts winner}
+    puts "House wins" if winners.length == 0
     new_game
   end
 
