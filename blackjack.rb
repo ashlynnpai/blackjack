@@ -273,4 +273,4 @@ class Game
   end
 end
 
-#Game.new.first_play
+Game.new.first_play
