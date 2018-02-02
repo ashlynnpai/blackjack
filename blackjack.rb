@@ -135,6 +135,8 @@ class Game
       npcs << Npc.new(names[index])
       index += 1
     end
+    puts "\nIntroducing the other players:"
+    npcs.each {|npc| puts "#{npc.name}"}
   end
 
   def select_number_npcs
@@ -181,23 +183,32 @@ class Game
     end
   end
 
+  def computer_turn(participant)
+    participant.hand(participant.name, participant.cards)
+    tracker[participant.name] = participant.total(participant.cards)
+    puts "\n#{participant.name}'s total is #{tracker[participant.name]}.\n"
+    loop do
+      if tracker[participant.name] < 17
+        get_card(participant)
+        break if check_for_bust(participant)
+      else
+        puts "\n#{participant.name} stands with #{tracker[participant.name]}.\n"
+        break
+      end
+    end
+  end
+
   def npc_turn
+    if npcs.length > 0
+      npcs.each do |npc|
+        computer_turn(npc)
+      end
+    end
 
   end
 
   def dealer_turn
-    dealer.hand("Dealer", dealer.cards)
-    tracker[dealer.name] = dealer.total(dealer.cards)
-    puts "\n#{dealer.name}'s total is #{tracker[dealer.name]}.\n"
-    loop do
-      if tracker[dealer.name] < 17
-        get_card(dealer)
-        break if check_for_bust(dealer)
-      else
-        puts "\n#{dealer.name} stands with #{tracker[dealer.name]}.\n"
-        break
-      end
-    end
+    computer_turn(dealer)
   end
 
   def get_card(participant)
@@ -238,6 +249,7 @@ class Game
     initial_deal
     blackjack
     player_turn
+    npc_turn
     dealer_turn
     winner
   end
@@ -247,6 +259,7 @@ class Game
     @deck = Deck.new
     player.cards = []
     dealer.cards = []
+    npcs.each {|npc| npc.cards = []}
     play
   end
 
