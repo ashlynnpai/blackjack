@@ -28,7 +28,6 @@ class Deck
         @cards << Card.new(suit, card)
       end
     end
-
     @cards = @cards.shuffle!
   end
 end
@@ -57,10 +56,10 @@ module Hand
     #correct for Aces
     add_values.select{|card| card == "A"}.count.times do
         total -= 10 if total > 21
-      end
-    total
     end
+    total
   end
+end
 
 class Participant
   attr_accessor :name, :cards
@@ -204,4 +203,4 @@ class Game
   end
 end
 
-Game.new.first_play
+#Game.new.first_play
