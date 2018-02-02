@@ -109,6 +109,7 @@ class Game
     winners = []
     tracker[player.name] = player.total(player.cards)
     tracker[dealer.name] = dealer.total(dealer.cards)
+    npcs.each {|npc| tracker[npc.name] = npc.total(npc.cards)}
     tracker.each {|k,v| winners << k if v == 21}
     if winners.length > 0
       puts "\nWinning with blackjack are: \n"
